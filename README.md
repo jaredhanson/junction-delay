@@ -3,6 +3,27 @@
 [Delayed Delivery](http://xmpp.org/extensions/xep-0203.html) middleware built on [Junction](http://github.com/jaredhanson/junction)
 and [Node](http://nodejs.org).
 
+## Installation
+
+    $ npm install junction-delay
+
+## Usage
+
+To parse delayed delivery information in message and presence stanzas, use
+`delayParser` middleware:
+
+    var delayParser = require('junction-delay');
+
+    var app = junction()
+      .use(delayParser());
+
+## Tests
+
+    $ npm install --dev
+    $ make test
+
+[![Build Status](https://secure.travis-ci.org/jaredhanson/junction-delay.png)](http://travis-ci.org/jaredhanson/junction-delay)
+
 ## License
 
 (The MIT License)
