@@ -107,6 +107,54 @@ vows.describe('delayParser').addBatch({
       },
     },
     
+    'when handling a message stanza with delay lacking from': {
+      topic: function(delayParser) {
+        var self = this;
+        var msg = new junction.XMLElement('message', { from: 'romeo@example.net/orchard' });
+        msg.c('delay', { xmlns: 'urn:xmpp:delay',
+                         stamp: '2002-09-10T23:08:25Z' });
+        
+        function next(err) {
+          self.callback(err, msg);
+        }
+        process.nextTick(function () {
+          delayParser(msg, next)
+        });
+      },
+      
+      'should not set delayedBy property' : function(err, stanza) {
+        assert.isUndefined(stanza.delayedBy);
+      },
+      'should set originallySentAt property' : function(err, stanza) {
+        assert.instanceOf(stanza.originallySentAt, Date);
+        assert.equal(stanza.originallySentAt.toUTCString(), 'Tue, 10 Sep 2002 23:08:25 GMT');
+      },
+    },
+    
+    'when handling a malformed message stanza with delay lacking stamp': {
+      topic: function(delayParser) {
+        var self = this;
+        var msg = new junction.XMLElement('message', { from: 'romeo@example.net/orchard' });
+        msg.c('delay', { xmlns: 'urn:xmpp:delay',
+                          from: 'capulet.com' });
+        
+        function next(err) {
+          self.callback(err, msg);
+        }
+        process.nextTick(function () {
+          delayParser(msg, next)
+        });
+      },
+      
+      'should set delayedBy property' : function(err, stanza) {
+        assert.instanceOf(stanza.delayedBy, junction.JID);
+        assert.equal(stanza.delayedBy, 'capulet.com');
+      },
+      'should not set originallySentAt property' : function(err, stanza) {
+        assert.isUndefined(stanza.originallySentAt)
+      },
+    },
+    
     'when handling a non-message, non-presence stanza': {
       topic: function(delayParser) {
         var self = this;
